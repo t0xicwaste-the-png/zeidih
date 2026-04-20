@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mirror</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #ffffff;
+            color: #0d0d0d;
+            font-family: Georgia, serif;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+
+        main {
+            max-width: 560px;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        #echo {
+            opacity: 0;
+            transition: opacity 1.6s ease;
+            margin-top: 28px;
+        }
+
+        body.ready #echo {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <p id="line">nothing to reflect.</p>
+    <p id="echo"> </p>
+</main>
+
+<script>
+const state = JSON.parse(localStorage.getItem("zeidih-secrets") || "{}");
+const line = document.getElementById("line");
+const echo = document.getElementById("echo");
+
+if (state.pass === "mirror" || state.warehouseSeen) {
+    line.innerText = "the page looked back.";
+    echo.innerText = "there are still pages you have not been invited to, but that has never stopped anyone.";
+    document.body.classList.add("ready");
+    document.title = "mirror / active";
+    state.mirrorSeen = true;
+    localStorage.setItem("zeidih-secrets", JSON.stringify(state));
+} else {
+    echo.innerText = "stand somewhere stranger first.";
+    document.body.classList.add("ready");
+}
+</script>
+</body>
+</html>

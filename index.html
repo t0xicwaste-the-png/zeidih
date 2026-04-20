@@ -1,39 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>zei dih</title>
-        <style>
-            button {
-                background-color: black;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                
-                box-shadow: 0 6px 0 #444; 
-                
-                transition: all 0.1s ease;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zei dih</title>
+    <style>
+        body {
+            background-color: white;
+            color: black;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-                position: relative;
-                top: 0;
-            }
+        button {
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #444;
+            transition: all 0.1s ease;
+            position: relative;
+            top: 0;
+        }
 
-            /* 2. The "Pressed" State */
-            button:active {
-                box-shadow: 0 0 0 #444;
-                
-                top: 6px;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>this is zei dih a brand new website</h1>
-        <p>my partner zei pitched this idea to me</p>
-        <p>im not sure what we sell or what we do</p>
-        <p>but i know that we are going to make a lot of money 🤑🤑🤑🤑🤑🤑🤑🤑🤑🤑</p>
-        <button>donate</button>
-        <p>zeis tuff song BOIIIIII</p>
-        <iframe width="560" height="202" src="https://www.bandlab.com/embed/?id=b25c85b8-b3e1-4dac-9050-699f22a9d3c5" allowfullscreen></iframe>
-    </body>
+        button:active {
+            box-shadow: 0 0 0 #444;
+            top: 6px;
+        }
+
+        #hidden {
+            display: none;
+            color: red;
+        }
+
+        .dust {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.08);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<!-- if the page ever seems too honest, it probably isn't -->
+<!-- quiet door: warehouse.html -->
+
+<h1 id="title">this is zei dih a brand new website</h1>
+
+<p id="p1">my partner zei pitched this idea to me</p>
+<p id="p2">im not sure what we sell or what we do</p>
+<p id="p3">but i know that we are going to make a lot of money</p>
+
+<button id="donate-button" onclick="donate()">donate</button>
+
+<p id="msg"></p>
+<p id="hidden">you weren't supposed to click that</p>
+
+<br><br>
+
+<p id="song-label">zeis tuff song BOIIIIII</p>
+<iframe width="560" height="202" src="https://www.bandlab.com/embed/?id=b25c85b8-b3e1-4dac-9050-699f22a9d3c5" allowfullscreen></iframe>
+
+<audio id="whisper" src="whisper.mp3"></audio>
+
+<script>
+let clicked = false;
+let typedBuffer = "";
+let moves = 0;
+let titleTapCount = 0;
+let lastTitleTap = 0;
+const state = JSON.parse(localStorage.getItem("zeidih-secrets") || "{}");
+
+function saveState() {
+    localStorage.setItem("zeidih-secrets", JSON.stringify(state));
+}
+
+function markSecret(name) {
+    state[name] = true;
+    saveState();
+}
+
+function maybeOpenWarehouse() {
+    if (state.selectionMade && state.donateCount >= 2) {
+        state.pass = "warehouse";
+        saveState();
+    }
+}
+
+function donate() {
+    document.getElementById("msg").innerText = "thanks for the support!";
+    markSecret("donated");
+    state.donateCount = (state.donateCount || 0) + 1;
+    saveState();
+    maybeOpenWarehouse();
+
+    if (!clicked) {
+        clicked = true;
+
+        setTimeout(() => {
+            document.getElementById("msg").innerText = "processing...";
+        }, 1000);
+
+        setTimeout(() => {
+            document.getElementById("hidden").style.display = "block";
+        }, 3000);
+
+        setTimeout(() => {
+            document.getElementById("msg").innerText = "still processing...";
+        }, 6000);
+
+        setTimeout(() => {
+            document.getElementById("msg").innerText = "this is taking longer than expected";
+        }, 9000);
+    }
+}
+
+if (localStorage.getItem("visited")) {
+    const visits = Number(localStorage.getItem("visit-count") || "1") + 1;
+    localStorage.setItem("visit-count", String(visits));
+
+    let p = document.createElement("p");
+    p.innerText = "oh. it's you again";
+    p.style.opacity = "0.6";
+    document.body.appendChild(p);
+
+    if (visits >= 3) {
+        markSecret("returning");
+    }
+} else {
+    localStorage.setItem("visited", "true");
+    localStorage.setItem("visit-count", "1");
+}
+
+setTimeout(() => {
+    let p = document.createElement("p");
+    p.innerText = "you've been here for a while";
+    document.body.appendChild(p);
+}, 15000);
+
+document.addEventListener("mousemove", () => {
+    moves++;
+
+    if (moves === 200) {
+        let p = document.createElement("p");
+        p.innerText = "you don't have to keep moving";
+        document.body.appendChild(p);
+        markSecret("restless");
+    }
+});
+
+setInterval(() => {
+    if (Math.random() > 0.97) {
+        document.title = "zeidih";
+        setTimeout(() => {
+            document.title = "zei dih";
+        }, 200);
+    }
+}, 1000);
+
+setInterval(() => {
+    if (Math.random() > 0.995) {
+        let p = document.createElement("p");
+        p.innerText = "zei doesnt tell me anymore :sob: :sob: :sob:";
+        document.body.appendChild(p);
+    }
+}, 3000);
+
+document.getElementById("p2").addEventListener("mouseup", () => {
+    document.getElementById("p2").innerText = "im not sure what we started";
+    state.selectionMade = true;
+    saveState();
+    maybeOpenWarehouse();
+});
+
+document.getElementById("p3").addEventListener("dblclick", (event) => {
+    document.getElementById("p3").innerText = "but i know that something is under the floorboards";
+    markSecret("floorboards");
+
+    if (event.altKey || event.metaKey) {
+        state.pass = "mirror";
+        saveState();
+        window.location.href = "mirror.html";
+    }
+});
+
+setTimeout(() => {
+    let p = document.createElement("p");
+    p.innerText = "donation made 1000000000000000000$";
+    p.style.fontSize = "12px";
+    p.style.opacity = "0.5";
+    document.body.appendChild(p);
+}, 8000);
+
+document.addEventListener("click", () => {
+    let audio = document.getElementById("whisper");
+    audio.volume = 0.1;
+    audio.play().catch(() => {});
+});
+
+document.getElementById("title").addEventListener("click", () => {
+    const now = Date.now();
+    if (now - lastTitleTap < 1200) {
+        titleTapCount++;
+    } else {
+        titleTapCount = 1;
+    }
+
+    lastTitleTap = now;
+
+    if (titleTapCount >= 3 && window.location.hash === "#quiet") {
+        state.pass = "warehouse";
+        saveState();
+        window.location.href = "warehouse.html?knock=2";
+    }
+});
+
+setInterval(() => {
+    if (window.outerWidth - window.innerWidth > 100) {
+        if (state.pass === "warehouse") {
+            console.log("inventory overflow lives in warehouse.html");
+        } else if (Number(localStorage.getItem("visit-count") || "1") > 1) {
+            console.log("some pages are not in the navigation");
+        }
+    }
+}, 1000);
+
+let secret = document.createElement("p");
+secret.innerText = "you know what we sell deep inside of you";
+secret.style.color = "white";
+secret.style.userSelect = "none";
+document.body.appendChild(secret);
+
+setInterval(() => {
+    let btn = document.getElementById("donate-button");
+    btn.style.transform = `scale(${1 + Math.random() * 0.01})`;
+}, 3000);
+
+setTimeout(() => {
+    let p = document.createElement("p");
+    p.innerText = "youve been here for a while, huh?";
+    document.body.appendChild(p);
+}, 30000);
+
+document.addEventListener("keydown", (event) => {
+    typedBuffer = (typedBuffer + event.key.toLowerCase()).slice(-24);
+
+    if (typedBuffer.includes("warehouse")) {
+        state.pass = "warehouse";
+        saveState();
+        window.location.href = "warehouse.html";
+    }
+
+    if (typedBuffer.includes("mirror") && Number(localStorage.getItem("visit-count") || "1") > 1) {
+        state.pass = "mirror";
+        saveState();
+        window.location.href = "mirror.html";
+    }
+});
+
+document.addEventListener("copy", () => {
+    markSecret("copied");
+});
+
+if (window.location.search.includes("donation=truth")) {
+    state.pass = "warehouse";
+    saveState();
+}
+
+if (window.innerWidth < 700) {
+    markSecret("small-screen");
+}
+
+if (new Date().getMinutes() === 33) {
+    console.log("minute 33 is usually a good time to look around");
+}
+
+for (let i = 0; i < 8; i++) {
+    const dust = document.createElement("div");
+    dust.className = "dust";
+    dust.style.left = `${8 + (i * 13)}vw`;
+    dust.style.top = `${12 + ((i * 9) % 70)}vh`;
+    document.body.appendChild(dust);
+}
+</script>
+
+</body>
 </html>
