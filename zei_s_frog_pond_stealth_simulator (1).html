@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zei's Frog Pond Stealth Simulator - Ultimate Brain Rot Edition</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Press+Start+2P&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+            pixel: ['"Press Start 2P"', 'monospace'],
+            tech: ['"Space Grotesk"', 'sans-serif']
+          },
+          colors: {
+            pond: {
+              dark: '#081c15',
+              green: '#1b4332',
+              mid: '#2d6a4f',
+              light: '#52b788',
+              bright: '#74c69d'
+            },
+            zeidih: {
+              gold: '#ffd700',
+              purple: '#a855f7',
+              cyan: '#06b6d4',
+              pink: '#ec4899',
+              grimace: '#581c87'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .pixel-shadow {
+      box-shadow: 4px 4px 0px #000000;
+    }
+
+    .glow-gold {
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+
+    .glow-purple {
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+    }
+
+    @keyframes floatText {
+      0% { opacity: 1; transform: translateY(0px) scale(1); }
+      100% { opacity: 0; transform: translateY(-60px) scale(1.4); }
+    }
+
+    .animate-float-text {
+      animation: floatText 1.2s ease-out forwards;
+    }
+
+    @keyframes spinSlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .animate-spin-slow {
+      animation: spinSlow 12s linear infinite;
+    }
+
+    @keyframes rainbowGlow {
+      0% { filter: drop-shadow(0 0 10px #ff0000); }
+      33% { filter: drop-shadow(0 0 10px #00ff00); }
+      66% { filter: drop-shadow(0 0 10px #0000ff); }
+      100% { filter: drop-shadow(0 0 10px #ff0000); }
+    }
+
+    .animate-rainbow {
+      animation: rainbowGlow 2s infinite linear;
+    }
+
+    /* Twitch chat ticker styling */
+    @keyframes scrollChat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-100%); }
+    }
+
+    canvas {
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans bg-slate-950 overflow-hidden text-sm sm:text-base">
+
+  <header class="bg-slate-900/90 border-b border-emerald-900/60 px-4 py-2 flex items-center justify-between shrink-0 z-20 backdrop-blur-md">
+    <div class="flex items-center gap-3">
+      <div id="zeidih-logo-btn" onclick="triggerZeidihEasterEgg()" class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-purple-600 to-pink-500 border border-amber-400/50 flex items-center justify-center text-xl text-amber-300 shadow-lg cursor-pointer hover:scale-105 transition active:scale-95" title="Click for Zeidih Brainrot Overload!">
+        👑
+      </div>
+      <div>
+        <h1 class="font-bold text-lg leading-none text-emerald-300 tracking-wide flex items-center gap-2">
+          ZEI'S POND SIMULATOR
+          <span class="bg-gradient-to-r from-amber-500/30 via-pink-500/30 to-purple-500/30 text-amber-300 border border-amber-400/40 text-[10px] px-2 py-0.5 rounded font-pixel flex items-center gap-1 animate-pulse">
+            🔥 BRAIN ROT v100,000
+          </span>
+        </h1>
+        <p class="text-xs text-slate-400 flex items-center gap-2">
+          <span>Stealth Level: <strong id="stealth-title" class="text-emerald-400">Sigma Rizzler</strong></span>
+          <span class="text-slate-600">•</span>
+          <a href="#" onclick="triggerZeidihEasterEgg(); return false;" class="text-amber-400 hover:underline font-mono text-[11px]"><i class="fa-solid fa-globe text-[10px]"></i> zeidih.com</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Header Stats & Brainrot Controls -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Live Mewing Meter -->
+      <button onclick="triggerMewing()" class="hidden sm:flex bg-gradient-to-r from-purple-900/80 to-slate-900 border border-purple-500/50 px-2.5 py-1 rounded-xl items-center gap-1.5 hover:scale-105 transition active:scale-95">
+        <span class="text-base">🗿</span>
+        <div class="text-left">
+          <div class="text-[9px] text-purple-300 font-bold uppercase leading-none">Mewing Streak</div>
+          <div id="mewing-count" class="font-pixel text-xs text-amber-300 leading-tight">0🤫</div>
+        </div>
+      </button>
+
+      <!-- Total Views -->
+      <div class="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-eye text-cyan-400 text-xs"></i>
+        <div class="text-xs">
+          <div class="text-slate-400 text-[9px] leading-tight font-bold">BRAIN ROT VIEWS</div>
+          <div id="header-views" class="font-pixel text-cyan-300 text-xs sm:text-sm">1.00e+24</div>
+        </div>
+      </div>
+
+      <!-- Combo Counter Badge -->
+      <div id="combo-badge" class="hidden bg-amber-500/20 border border-amber-400/50 px-2.5 py-1 rounded-xl flex items-center gap-1.5 animate-bounce">
+        <span class="text-xs font-pixel text-amber-300" id="combo-count">5x</span>
+        <span class="text-[10px] font-bold text-amber-400">RIZZ COMBO!</span>
+      </div>
+
+      <!-- Subway Surfers Split Screen Toggle -->
+      <button id="subway-toggle-btn" onclick="toggleSubwaySurfers()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-amber-400 transition" title="Toggle Subway Surfers Brainrot Split Screen">
+        <i class="fa-solid fa-gamepad text-amber-400"></i>
+      </button>
+
+      <!-- Twitch Chat Toggle -->
+      <button id="twitch-toggle-btn" onclick="toggleTwitchChat()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-purple-400 transition" title="Toggle Live Brainrot Twitch Chat Stream">
+        <i class="fa-brands fa-twitch text-purple-400"></i>
+      </button>
+
+      <!-- Music Toggle -->
+      <button id="music-toggle-btn" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-300 transition" title="Toggle Lo-Fi Synth Beats">
+        <i class="fa-solid fa-music text-pink-400" id="music-icon"></i>
+      </button>
+
+      <!-- Sound Toggle -->
+      <button id="sound-toggle-btn" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-300 transition" title="Toggle Sound FX">
+        <i class="fa-solid fa-volume-high text-emerald-400" id="sound-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+    
+    <!-- Canvas Game Viewport -->
+    <div class="flex-1 relative flex flex-col items-center justify-center bg-slate-950 p-2 sm:p-4 overflow-hidden">
+      
+      <!-- Top Canvas Hud Overlay -->
+      <div class="absolute top-4 left-4 right-4 z-10 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+        
+        <!-- Oxygen Bar HUD -->
+        <div class="bg-slate-900/90 backdrop-blur border border-emerald-500/30 p-2.5 rounded-2xl flex flex-col gap-1 w-48 sm:w-64 pointer-events-auto shadow-xl">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-semibold text-emerald-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-wind text-cyan-400"></i> Straw Oxygen
+            </span>
+            <span id="oxygen-text" class="font-pixel text-[10px] text-cyan-300">100%</span>
+          </div>
+          <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800 p-0.5">
+            <div id="oxygen-bar" class="h-full bg-gradient-to-r from-cyan-500 via-emerald-400 to-amber-300 rounded-full transition-all duration-150 w-full"></div>
+          </div>
+        </div>
+
+        <!-- Boss Health Bar -->
+        <div id="boss-hud" class="hidden bg-slate-900/95 border-2 border-red-500/80 p-2.5 rounded-2xl flex flex-col gap-1 w-64 sm:w-80 pointer-events-auto shadow-2xl animate-pulse">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-red-400 flex items-center gap-1">
+              👑 GIGACHAD ZEIDIH OVERLORD FROG
+            </span>
+            <span id="boss-hp-text" class="font-pixel text-[10px] text-red-300">100/100</span>
+          </div>
+          <div class="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800 p-0.5">
+            <div id="boss-hp-bar" class="h-full bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 rounded-full transition-all duration-100 w-full"></div>
+          </div>
+        </div>
+
+        <!-- Clout Rate Display -->
+        <div class="bg-slate-900/90 backdrop-blur border border-purple-500/30 p-2.5 rounded-2xl flex items-center gap-3 pointer-events-auto shadow-xl">
+          <div class="text-2xl animate-spin-slow">🔥</div>
+          <div>
+            <div class="text-[10px] font-bold text-purple-300 uppercase tracking-wider">Brainrot Clout Rate</div>
+            <div id="clout-rate" class="font-pixel text-xs text-amber-300">+10 Clout/sec</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Floating Banner Hint -->
+      <div id="hint-banner" class="absolute bottom-4 z-10 bg-slate-900/90 backdrop-blur border border-amber-500/40 text-amber-300 text-xs px-4 py-2 rounded-full shadow-xl pointer-events-none flex items-center gap-2 animate-bounce">
+        <i class="fa-solid fa-skull text-pink-400"></i>
+        <span>Tap frogs, floaters & memes! Type secret codes: <strong class="text-white font-mono bg-amber-500/30 px-1 rounded">mewing, fanumtax, pedroraccoon, grimace, rizz god</strong>!</span>
+      </div>
+
+      <!-- Live Twitch Chat Sidebar Overlay (Brainrot Stream) -->
+      <div id="twitch-chat-overlay" class="hidden absolute top-20 right-6 w-56 h-64 bg-slate-950/85 border border-purple-500/50 rounded-2xl p-2.5 z-30 pointer-events-none backdrop-blur-md flex flex-col overflow-hidden text-[11px] shadow-2xl">
+        <div class="text-[10px] font-bold text-purple-400 border-b border-purple-900/80 pb-1 flex items-center justify-between">
+          <span><i class="fa-brands fa-twitch"></i> LIVE CHAT (104.2M)</span>
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+        </div>
+        <div id="twitch-chat-messages" class="flex-1 overflow-hidden flex flex-col justify-end space-y-1 font-mono text-[10px]">
+          <!-- Messages dynamically appended -->
+        </div>
+      </div>
+
+      <!-- Subway Surfers Distraction Split-Screen Box -->
+      <div id="subway-overlay" class="hidden absolute left-6 bottom-16 w-48 h-64 bg-black/90 border-2 border-amber-400/80 rounded-2xl z-30 pointer-events-auto shadow-2xl overflow-hidden flex flex-col items-center justify-center">
+        <div class="bg-amber-500 text-black text-[9px] font-pixel px-2 py-0.5 w-full text-center font-bold uppercase flex justify-between items-center">
+          <span>Subway Surfers</span>
+          <span id="subway-score" class="text-[8px] font-mono">0 pts</span>
+        </div>
+        <canvas id="subwayCanvas" class="w-full h-full bg-slate-900 cursor-pointer" onclick="handleSubwayClick(event)"></canvas>
+        <div class="bg-slate-900/90 text-slate-400 text-[8px] py-0.5 px-1 w-full text-center font-mono border-t border-slate-800">
+          Tap Left/Right or A/D / Arrow Keys
+        </div>
+      </div>
+
+      <!-- Main Game Canvas Frame -->
+      <div id="canvas-frame" class="relative w-full h-full max-w-5xl max-h-[720px] flex items-center justify-center rounded-3xl overflow-hidden border-2 border-emerald-900/80 shadow-2xl bg-black">
+        <canvas id="pondCanvas" class="w-full h-full cursor-crosshair"></canvas>
+
+        <!-- Floating damage / clout text container -->
+        <div id="floating-text-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+        <!-- Zeidih Overlay Effect Banner -->
+        <div id="zeidih-banner" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-all duration-500 opacity-0 scale-50 z-40 text-center">
+          <div class="font-pixel text-2xl sm:text-4xl text-amber-300 drop-shadow-[0_0_25px_rgba(255,215,0,0.9)] animate-pulse">
+            ⚡ ZEIDIH.COM DOMAIN UNLOCKED ⚡
+          </div>
+          <div class="font-tech text-cyan-300 text-xs sm:text-sm mt-2 bg-slate-950/80 px-4 py-1.5 rounded-full border border-cyan-500/50 inline-block shadow-2xl">
+            MAX BRAIN ROT, INFINITE OXYGEN & 1,000,000x RIZZ MULTIPLIER ACTIVATED!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="w-full lg:w-96 bg-slate-900 border-t lg:border-t-0 lg:border-l border-emerald-900/50 flex flex-col shrink-0 h-80 lg:h-full z-10">
+      
+      <!-- Navigation Tabs Header -->
+      <div class="flex border-b border-slate-800 bg-slate-950/70 p-1.5 gap-1 overflow-x-auto">
+        <button id="tab-upgrades" onclick="switchTab('upgrades')" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition bg-emerald-600 text-white flex items-center justify-center gap-1 shrink-0">
+          <i class="fa-solid fa-cart-shopping"></i> Shop
+        </button>
+        <button id="tab-frogs" onclick="switchTab('frogs')" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1 shrink-0">
+          <i class="fa-solid fa-frog"></i> Codex
+        </button>
+        <button id="tab-weather" onclick="switchTab('weather')" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1 shrink-0">
+          <i class="fa-solid fa-globe"></i> Realm
+        </button>
+        <button id="tab-achievements" onclick="switchTab('achievements')" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1 shrink-0">
+          <i class="fa-solid fa-trophy"></i> Badges
+        </button>
+        <button id="tab-meme" onclick="switchTab('meme')" class="flex-1 py-2 px-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1 shrink-0">
+          <i class="fa-solid fa-camera"></i> Memes
+        </button>
+      </div>
+
+      <!-- Tab Content Scrollable Container -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        
+        <!-- 1. SHOP TAB -->
+        <div id="content-upgrades" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xs font-bold text-emerald-400 flex items-center gap-2 tracking-wider uppercase">
+              <i class="fa-solid fa-vial"></i> Brain Rot Upgrades
+            </h2>
+            <span id="shop-clout-display" class="text-xs font-pixel text-amber-300">0 Clout</span>
+          </div>
+
+          <!-- Boba Straw -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 hover:border-emerald-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-700/50 flex items-center justify-center text-xl shrink-0">🥤</div>
+              <div>
+                <div class="font-bold text-xs text-slate-200">Boba Quantum Straw</div>
+                <div class="text-[11px] text-slate-400">+50% Oxygen Recovery</div>
+              </div>
+            </div>
+            <button id="btn-upgrade-straw" onclick="buyUpgrade('straw')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
+              <div class="text-[9px] opacity-80">Cost</div>
+              <div id="cost-straw" class="font-pixel text-[9px]">100 Clout</div>
+            </button>
+          </div>
+
+          <!-- Cool Shades -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 hover:border-emerald-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-950 border border-purple-700/50 flex items-center justify-center text-xl shrink-0">🕶️</div>
+              <div>
+                <div class="font-bold text-xs text-slate-200">Rizzler Shades</div>
+                <div class="text-[11px] text-slate-400">Viral Clout Multiplier 2x</div>
+              </div>
+            </div>
+            <button id="btn-upgrade-shades" onclick="buyUpgrade('shades')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
+              <div class="text-[9px] opacity-80">Cost</div>
+              <div id="cost-shades" class="font-pixel text-[9px]">500 Clout</div>
+            </button>
+          </div>
+
+          <!-- Skibidi Plunger Turret -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 hover:border-emerald-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-950 border border-red-700/50 flex items-center justify-center text-xl shrink-0">🪠</div>
+              <div>
+                <div class="font-bold text-xs text-slate-200">Skibidi Plunger Cannon</div>
+                <div class="text-[11px] text-slate-400">Auto-snipes frogs off straw!</div>
+              </div>
+            </div>
+            <button id="btn-upgrade-plunger" onclick="buyUpgrade('plunger')" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
+              <div class="text-[9px] opacity-80">Cost</div>
+              <div id="cost-plunger" class="font-pixel text-[9px]">1.5k Clout</div>
+            </button>
+          </div>
+
+          <!-- Mewing Jawline Shaper -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 hover:border-emerald-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-950 border border-amber-700/50 flex items-center justify-center text-xl shrink-0">🗿</div>
+              <div>
+                <div class="font-bold text-xs text-slate-200">Chad Jawline Trainer</div>
+                <div class="text-[11px] text-slate-400">+10,000 Clout/sec passive!</div>
+              </div>
+            </div>
+            <button id="btn-upgrade-jawline" onclick="buyUpgrade('jawline')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
+              <div class="text-[9px] opacity-80">Cost</div>
+              <div id="cost-jawline" class="font-pixel text-[9px]">5.0k Clout</div>
+            </button>
+          </div>
+
+          <!-- Rizz God Capybara Companion -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 hover:border-emerald-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-700/50 flex items-center justify-center text-xl shrink-0">🦫</div>
+              <div>
+                <div class="font-bold text-xs text-slate-200">Golden Capybara Friend</div>
+                <div class="text-[11px] text-slate-400">Sits in pond & generates gold meme aura</div>
+              </div>
+            </div>
+            <button id="btn-upgrade-capybara" onclick="buyUpgrade('capybara')" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
+              <div class="text-[9px] opacity-80">Cost</div>
+              <div id="cost-capybara" class="font-pixel text-[9px]">12.0k Clout</div>
+            </button>
+          </div>
+
+          <!-- Zeidih Quantum Straw -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-amber-500/40 flex items-center justify-between gap-3 hover:border-amber-400 transition bg-gradient-to-r from-amber-950/30 via-purple-950/30 to-pink-950/30">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-purple-600 border border-amber-300 flex items-center justify-center text-xl shrink-0 shadow-lg">⚡</div>
+              <div>
+                <div class="font-bold text-xs text-amber-300 flex items-center gap-1">
+                  Zeidih Quantum Straw <i class="fa-solid fa-certificate text-amber-400 text-[10px]"></i>
+                </div>
+                <div class="text-[11px] text-slate-300">Infinite straw capacity + Rainbow laser beam</div>
+              </div>
+            </div>
+            <button id="btn-upgrade-zeidih" onclick="buyUpgrade('zeidih')" class="bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-400 hover:to-purple-500 text-white font-bold text-xs px-3 py-2 rounded-xl transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none shadow-lg">
+              <div class="text-[9px] opacity-80">Cost</div>
+              <div id="cost-zeidih" class="font-pixel text-[9px]">50.0k Clout</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. FROG CODEX TAB -->
+        <div id="content-frogs" class="space-y-3 hidden">
+          <h2 class="text-xs font-bold text-emerald-400 flex items-center gap-2">
+            <i class="fa-solid fa-book"></i> KNOWN POND SPECIES & MEMES
+          </h2>
+
+          <div class="space-y-2 text-xs">
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
+              <span class="text-3xl">🐸</span>
+              <div>
+                <div class="font-bold text-slate-200">Common Marsh Frog</div>
+                <div class="text-slate-400 text-[11px]">Sits near Zei and croaks peacefully (+50 Clout).</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
+              <span class="text-3xl">👑</span>
+              <div>
+                <div class="font-bold text-yellow-400">Straw Interrupter Frog</div>
+                <div class="text-slate-400 text-[11px]">Sits directly on Zei's straw! Tap fast to clear!</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-2xl border border-amber-500/30 flex items-center gap-3">
+              <span class="text-3xl">🦝</span>
+              <div>
+                <div class="font-bold text-amber-300">Pedro Spinning Raccoon</div>
+                <div class="text-slate-400 text-[11px]">Spawns when typing 'pedroraccoon'. Spins endlessly!</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-2xl border border-purple-500/30 flex items-center gap-3">
+              <span class="text-3xl">🥤</span>
+              <div>
+                <div class="font-bold text-purple-300">Grimace Shake Void Anomaly</div>
+                <div class="text-slate-400 text-[11px]">Floats through Grimace theme. Tap for purple clout explosion!</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-2xl border border-pink-500/40 flex items-center gap-3 bg-gradient-to-r from-purple-950/20 to-amber-950/20">
+              <span class="text-3xl">🗿</span>
+              <div>
+                <div class="font-bold text-pink-300">GIGACHAD MEWING ZEI</div>
+                <div class="text-slate-400 text-[11px]">Activated by secret code 'mewing'. Gives sharp jawline & infinite vibe!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. ENVIRONMENT TAB -->
+        <div id="content-weather" class="space-y-3 hidden">
+          <h2 class="text-xs font-bold text-cyan-400 flex items-center gap-2">
+            <i class="fa-solid fa-cloud-sun"></i> POND REALMS & MEME THEMES
+          </h2>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="setWeather('sunny')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-2xl text-left flex flex-col gap-1 transition">
+              <div class="text-xl">☀️</div>
+              <div class="font-bold text-slate-200">Serene Pond</div>
+              <div class="text-[10px] text-slate-400">Standard chill vibe</div>
+            </button>
+
+            <button onclick="setWeather('rain')" class="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-2xl text-left flex flex-col gap-1 transition">
+              <div class="text-xl">🌧️</div>
+              <div class="font-bold text-cyan-300">Rainstorm</div>
+              <div class="text-[10px] text-slate-400">Ripples & droplets</div>
+            </button>
+
+            <button onclick="setWeather('grimace')" class="p-3 bg-purple-950/40 hover:bg-purple-900/60 border border-purple-500/50 rounded-2xl text-left flex flex-col gap-1 transition">
+              <div class="text-xl">🥤</div>
+              <div class="font-bold text-purple-300">Grimace Void</div>
+              <div class="text-[10px] text-purple-200">Purple cosmic shakes</div>
+            </button>
+
+            <button onclick="setWeather('zeidih')" class="p-3 bg-gradient-to-br from-amber-900/40 to-purple-900/40 hover:from-amber-900/60 hover:to-purple-900/60 border border-amber-500/50 rounded-2xl text-left flex flex-col gap-1 transition">
+              <div class="text-xl">⚡</div>
+              <div class="font-bold text-amber-300">Zeidih Realm</div>
+              <div class="text-[10px] text-amber-200">Gold matrix rain</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. ACHIEVEMENTS & STATS TAB -->
+        <div id="content-achievements" class="space-y-3 hidden">
+          <h2 class="text-xs font-bold text-amber-400 flex items-center gap-2">
+            <i class="fa-solid fa-trophy"></i> STATS & BRAIN ROT BADGES
+          </h2>
+
+          <!-- Lifetime Stats -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2 text-xs">
+            <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+              <span class="text-slate-400">Frogs Shooed:</span>
+              <span id="stat-frogs" class="font-pixel text-emerald-400">0</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+              <span class="text-slate-400">Memes Tapped:</span>
+              <span id="stat-flies" class="font-pixel text-cyan-400">0</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+              <span class="text-slate-400">Fanum Taxes Paid:</span>
+              <span id="stat-tax" class="font-pixel text-amber-300">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Mewing Streaks:</span>
+              <span id="stat-mewing" class="font-pixel text-pink-400">0</span>
+            </div>
+          </div>
+
+          <!-- Badges -->
+          <div class="space-y-2 text-xs">
+            <div id="badge-1" class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 flex items-center gap-2.5 opacity-50">
+              <span class="text-2xl">🗿</span>
+              <div>
+                <div class="font-bold text-slate-200">Master Mewing Chad</div>
+                <div class="text-[10px] text-slate-400">Type code 'mewing' and reach 10x streak</div>
+              </div>
+            </div>
+
+            <div id="badge-2" class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 flex items-center gap-2.5 opacity-50">
+              <span class="text-2xl">🍕</span>
+              <div>
+                <div class="font-bold text-amber-300">Fanum Tax Survivor</div>
+                <div class="text-[10px] text-slate-400">Survive a Fanum Tax raid event</div>
+              </div>
+            </div>
+
+            <div id="badge-3" class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 flex items-center gap-2.5 opacity-50">
+              <span class="text-2xl">🪠</span>
+              <div>
+                <div class="font-bold text-red-400">Skibidi Plunger Lord</div>
+                <div class="text-[10px] text-slate-400">Unlock the Skibidi Plunger Cannon</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. MEME GENERATOR TAB -->
+        <div id="content-meme" class="space-y-3 hidden">
+          <h2 class="text-xs font-bold text-purple-400 flex items-center gap-2">
+            <i class="fa-solid fa-camera"></i> BRAIN ROT MEME MAKER
+          </h2>
+
+          <div class="space-y-2.5">
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 uppercase">Top Caption</label>
+              <input id="input-top-text" type="text" value="MY FRIEND ZEI TRYING TO ACHIEVE STEALTH LEVEL: POND" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:border-purple-500 outline-none">
+            </div>
+
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 uppercase">Bottom Caption</label>
+              <input id="input-bottom-text" type="text" value="BRO IS LITERALLY MEWING THROUGH A STRAW IN OHIO 🗿🐸🔥" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:border-purple-500 outline-none font-sans">
+            </div>
+
+            <button onclick="captureCanvasMeme()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs py-3 rounded-2xl shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-download"></i> Save Brain Rot Meme
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="p-3 bg-slate-950 border-t border-slate-800 flex flex-col gap-2">
+        <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1">
+          <span class="text-amber-400 font-mono text-xs">&gt;_</span>
+          <input id="secret-code-input" type="text" placeholder="Type secret code (mewing, fanumtax, pedroraccoon, grimace, rizz)..." class="bg-transparent text-xs text-amber-300 font-mono outline-none w-full placeholder:text-slate-600" onkeydown="handleCodeInput(event)">
+          <button onclick="submitSecretCode()" class="text-[10px] font-mono bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 px-2 py-0.5 rounded transition">
+            RUN
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between gap-2">
+          <button id="btn-dive" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold py-2.5 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-water"></i> DIVE UNDERWATER
+          </button>
+          <button id="btn-ribbit" onclick="triggerMassRibbit()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1">
+            📣 MASS CROAK
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 bg-slate-900 border border-amber-500/50 text-amber-300 text-xs px-4 py-2.5 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+    <i class="fa-solid fa-sparkles text-amber-400"></i> <span id="toast-msg" class="font-bold">Action performed!</span>
+  </div>
+
+  <script>
+    // --- ADVANCED WEB AUDIO API SYNTHESIZER ---
+    class SoundManager {
+      constructor() {
+        this.ctx = null;
+        this.soundEnabled = true;
+        this.musicEnabled = false;
+        this.musicInterval = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+
+      playRibbit() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.18);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.18);
+      }
+
+      playMewingSound() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(80, now);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.4);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+
+      playPlunger() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.linearRampToValueAtTime(100, now + 0.12);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.12);
+      }
+
+      playCoin() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.08);
+
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+
+      playZeidihBeam() {
+        if (!this.soundEnabled) return;
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(880, now + 0.35);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.35);
+      }
+
+      toggleMusic() {
+        this.musicEnabled = !this.musicEnabled;
+        if (this.musicEnabled) {
+          this.init();
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+          this.startSynthLoop();
+        } else {
+          this.stopSynthLoop();
+        }
+        return this.musicEnabled;
+      }
+
+      startSynthLoop() {
+        const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+        let step = 0;
+
+        this.musicInterval = setInterval(() => {
+          if (!this.musicEnabled || !this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(notes[step % notes.length], now);
+
+          gain.gain.setValueAtTime(0.04, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.4);
+          step++;
+        }, 400);
+      }
+
+      stopSynthLoop() {
+        if (this.musicInterval) clearInterval(this.musicInterval);
+      }
+    }
+
+    const audio = new SoundManager();
+
+    const gameState = {
+      views: 100003289723000,
+      clout: 0,
+      cloutRate: 10,
+      oxygen: 100,
+      maxOxygen: 100,
+      isDiving: false,
+      diveTimer: 0,
+      strawLevel: 1,
+      hasShades: false,
+      hasPlunger: false,
+      hasJawline: false,
+      hasCapybara: false,
+      hasZeidihStraw: false,
+      isMewingMode: false,
+      mewingStreak: 0,
+      hasPedroRaccoon: false,
+      pedroAngle: 0,
+      weather: 'sunny', // 'sunny', 'rain', 'grimace', 'zeidih'
+      topCaption: "MY FRIEND ZEI TRYING TO ACHIEVE STEALTH LEVEL: POND",
+      bottomCaption: "BRO IS LITERALLY MEWING THROUGH A STRAW IN OHIO 🗿🐸🔥",
+      
+      // Stats
+      stats: {
+        frogsShooed: 0,
+        memesTapped: 0,
+        fanumTaxCount: 0,
+        mewingStreakMax: 0
+      },
+      
+      // Boss Frog
+      boss: null,
+      combo: 0,
+      comboTimer: null
+    };
+
+    // Canvas Setup
+    const canvas = document.getElementById('pondCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    let zeix = 0, zeiy = 0;
+    let frogs = [];
+    let floatingMemes = [];
+    let bubbles = [];
+    let ripples = [];
+    let rainDrops = [];
+    let particles = [];
+
+    // Subway Surfers canvas & interactive state engine
+    const subwayCanvas = document.getElementById('subwayCanvas');
+    const subwayCtx = subwayCanvas ? subwayCanvas.getContext('2d') : null;
+    
+    const subwayState = {
+      lane: 1, // 0: Left, 1: Center, 2: Right
+      score: 0,
+      obstacles: [],
+      coinsList: [],
+      speed: 3.5,
+      isJumping: false,
+      jumpHeight: 0,
+      jumpVel: 0
+    };
+
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      width = canvas.width = Math.max(100, container.clientWidth);
+      height = canvas.height = Math.max(100, container.clientHeight);
+      zeix = width / 2;
+      zeiy = height / 2 + 30;
+
+      if (subwayCanvas && subwayCanvas.parentElement) {
+        subwayCanvas.width = Math.max(100, subwayCanvas.parentElement.clientWidth);
+        subwayCanvas.height = Math.max(100, subwayCanvas.parentElement.clientHeight - 30);
+      }
+    }
+
+    function handleSubwayClick(e) {
+      if (!subwayCanvas) return;
+      const rect = subwayCanvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      if (clickY < rect.height * 0.4 && !subwayState.isJumping) {
+        subwayState.isJumping = true;
+        subwayState.jumpVel = 9;
+      } else if (clickX < rect.width / 2) {
+        subwayState.lane = Math.max(0, subwayState.lane - 1);
+      } else {
+        subwayState.lane = Math.min(2, subwayState.lane + 1);
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      const subwayOverlay = document.getElementById('subway-overlay');
+      if (subwayOverlay && !subwayOverlay.classList.contains('hidden')) {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+          subwayState.lane = Math.max(0, subwayState.lane - 1);
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+          subwayState.lane = Math.min(2, subwayState.lane + 1);
+        } else if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') && !subwayState.isJumping) {
+          subwayState.isJumping = true;
+          subwayState.jumpVel = 9;
+        }
+      }
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+
+    function initPond() {
+      resizeCanvas();
+      
+      frogs = [];
+      for (let i = 0; i < 8; i++) {
+        spawnFrog();
+      }
+
+      floatingMemes = [];
+      for (let i = 0; i < 6; i++) {
+        spawnFloatingMeme();
+      }
+
+      rainDrops = [];
+      for (let i = 0; i < 60; i++) {
+        rainDrops.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          length: Math.random() * 15 + 10,
+          vy: Math.random() * 8 + 10
+        });
+      }
+    }
+
+    function spawnFrog() {
+      const isStrawFrog = Math.random() < 0.25;
+      const isGolden = Math.random() < 0.08;
+
+      frogs.push({
+        x: isStrawFrog ? zeix + (Math.random() * 20 - 10) : Math.random() * (width - 120) + 60,
+        y: isStrawFrog ? zeiy - 110 : Math.random() * (height - 160) + 80,
+        size: isStrawFrog ? 28 : Math.random() * 8 + 22,
+        isGolden: isGolden,
+        isOnStraw: isStrawFrog,
+        croakTimer: Math.random() * 200 + 50
+      });
+    }
+
+    function spawnFloatingMeme() {
+      const memeTypes = ['🍕', '🥤', '🦫', '🪠', '🗿', '🍦'];
+      const icon = memeTypes[Math.floor(Math.random() * memeTypes.length)];
+      floatingMemes.push({
+        x: Math.random() * width,
+        y: Math.random() * (height / 2),
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3,
+        icon: icon,
+        size: 24
+      });
+    }
+
+    function spawnBoss() {
+      if (gameState.boss) return;
+      gameState.boss = {
+        x: zeix,
+        y: zeiy - 120,
+        size: 55,
+        hp: 100,
+        maxHp: 100
+      };
+      document.getElementById('boss-hud').classList.remove('hidden');
+      updateBossHud();
+      showToast('⚠️ GIGACHAD ZEIDIH OVERLORD FROG HAS SPAWNED!');
+    }
+
+    let lastTime = performance.now();
+
+    function renderLoop(currentTime) {
+      try {
+        const dt = Math.min(0.1, (currentTime - lastTime) / 1000);
+        lastTime = currentTime;
+
+        // Draw Background
+        drawPondBackground();
+
+        // Update Oxygen & Survival Logic
+        let strawBlocked = frogs.some(f => f.isOnStraw) || (gameState.boss !== null);
+        if (gameState.isDiving) {
+          gameState.oxygen = Math.max(0, gameState.oxygen - 18 * dt);
+          gameState.diveTimer += dt;
+        } else if (strawBlocked && !gameState.hasZeidihStraw) {
+          gameState.oxygen = Math.max(0, gameState.oxygen - 12 * dt);
+        } else {
+          const recoveryMult = gameState.strawLevel === 2 ? 1.5 : (gameState.hasZeidihStraw ? 10.0 : 1.0);
+          gameState.oxygen = Math.min(gameState.maxOxygen, gameState.oxygen + 15 * recoveryMult * dt);
+        }
+
+        // Clout Production
+        if (gameState.oxygen > 0) {
+          let mult = (gameState.hasShades ? 2 : 1) * (gameState.weather === 'zeidih' ? 100 : 1);
+          if (gameState.hasJawline) mult *= 5;
+          if (gameState.isMewingMode) mult *= 3;
+          gameState.clout += gameState.cloutRate * mult * dt;
+          gameState.views += gameState.cloutRate * 125000 * mult * dt;
+        }
+
+        // Mewing Streak Passive Accumulation
+        if (gameState.isMewingMode && Math.random() < 0.03) {
+          gameState.mewingStreak++;
+          gameState.stats.mewingStreakMax = Math.max(gameState.stats.mewingStreakMax, gameState.mewingStreak);
+          const countEl = document.getElementById('mewing-count');
+          if (countEl) countEl.innerText = `${gameState.mewingStreak}🤫`;
+          if (gameState.mewingStreak >= 10) unlockBadge(1);
+        }
+
+        // Skibidi Plunger Cannon Auto-Snipe
+        if (gameState.hasPlunger && Math.random() < 0.04) {
+          frogs.forEach(f => {
+            if (f.isOnStraw) {
+              f.isOnStraw = false;
+              f.x += (Math.random() > 0.5 ? 120 : -120);
+              f.y += 40;
+              audio.playPlunger();
+              spawnFloatingText('🪠 PLUNGER SNIPED!', f.x, f.y, '#ef4444');
+            }
+          });
+        }
+
+        // Random Boss Spawning
+        if (!gameState.boss && Math.random() < 0.0005) {
+          spawnBoss();
+        }
+
+        updateWeatherEffects(dt);
+        updateBubbles();
+        drawCapybaraFriend();
+        drawPedroRaccoon();
+        drawZeiCharacter();
+        drawStraw();
+        drawFrogs();
+        if (gameState.boss) drawBossFrog();
+        drawFloatingMemes();
+        drawRipples();
+        drawParticles();
+        drawMemeCaptions();
+        renderSubwaySurfers();
+        updateUI();
+
+      } catch (err) {
+        console.error("Safely recovered from render exception:", err);
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    function drawPondBackground() {
+      if (gameState.weather === 'grimace') {
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = '#a855f733';
+        ctx.lineWidth = 2;
+        for (let x = 0; x < width; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0); ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+        return;
+      }
+
+      if (gameState.weather === 'zeidih') {
+        ctx.fillStyle = '#0f051d';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = '#ffd70015';
+        ctx.lineWidth = 1.5;
+        for (let x = 0; x < width; x += 30) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0); ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+        return;
+      }
+
+      // Standard / Rain Pond
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, gameState.weather === 'rain' ? '#0b1912' : '#112a20');
+      grad.addColorStop(0.5, '#0a1d15');
+      grad.addColorStop(1, '#040d0a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Water Lilypads
+      ctx.fillStyle = '#1b4332';
+      const pads = [
+        {x: width * 0.18, y: height * 0.3, r: 48},
+        {x: width * 0.82, y: height * 0.38, r: 62},
+        {x: width * 0.12, y: height * 0.75, r: 52},
+        {x: width * 0.85, y: height * 0.78, r: 58},
+        {x: width * 0.5, y: height * 0.18, r: 42}
+      ];
+
+      pads.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 1.85);
+        ctx.lineTo(p.x, p.y);
+        ctx.fill();
+      });
+    }
+
+    function updateWeatherEffects(dt) {
+      if (gameState.weather === 'rain') {
+        ctx.strokeStyle = '#38bdf844';
+        ctx.lineWidth = 1.5;
+        rainDrops.forEach(r => {
+          r.y += r.vy;
+          if (r.y > height) {
+            r.y = -10;
+            r.x = Math.random() * width;
+          }
+          ctx.beginPath();
+          ctx.moveTo(r.x, r.y);
+          ctx.lineTo(r.x, r.y + r.length);
+          ctx.stroke();
+
+          if (Math.random() < 0.015) {
+            ripples.push({ x: r.x, y: r.y + r.length, r: 2, maxR: 15, alpha: 0.6 });
+          }
+        });
+      }
+
+      if (gameState.weather === 'zeidih' || gameState.weather === 'grimace') {
+        if (Math.random() < 0.2) {
+          particles.push({
+            x: Math.random() * width,
+            y: height + 10,
+            vy: -Math.random() * 3 - 1,
+            size: Math.random() * 4 + 2,
+            color: gameState.weather === 'grimace' ? '#c084fc' : '#ffd700'
+          });
+        }
+      }
+    }
+
+    function drawZeiCharacter() {
+      ctx.save();
+
+      if (gameState.isDiving) {
+        ctx.globalAlpha = 0.25;
+      }
+
+      // Vibe Ripple Aura around Zei
+      ctx.strokeStyle = gameState.isMewingMode ? '#ec4899' : (gameState.weather === 'zeidih' ? '#ffd700' : '#52b78866');
+      ctx.lineWidth = gameState.isMewingMode ? 4 : 2.5;
+      ctx.beginPath();
+      ctx.ellipse(zeix, zeiy + 10, 68, 26, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Head Base
+      ctx.fillStyle = '#d4a373';
+      ctx.beginPath();
+      
+      if (gameState.isMewingMode || gameState.hasJawline) {
+        // Sharp Chad Jawline shape!
+        ctx.moveTo(zeix - 42, zeiy - 50);
+        ctx.lineTo(zeix - 35, zeiy - 10);
+        ctx.lineTo(zeix, zeiy + 15); // Sharp jaw point
+        ctx.lineTo(zeix + 35, zeiy - 10);
+        ctx.lineTo(zeix + 42, zeiy - 50);
+        ctx.fill();
+      } else {
+        ctx.ellipse(zeix, zeiy - 25, 42, 45, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Eyes
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.ellipse(zeix - 18, zeiy - 35, 9, 11, 0, 0, Math.PI * 2);
+      ctx.ellipse(zeix + 18, zeiy - 35, 9, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#4a2c11';
+      ctx.beginPath();
+      ctx.arc(zeix - 18, zeiy - 37, 5, 0, Math.PI * 2);
+      ctx.arc(zeix + 18, zeiy - 37, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cool Shades Upgrade
+      if (gameState.hasShades) {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(zeix - 32, zeiy - 44, 26, 16);
+        ctx.fillRect(zeix + 6, zeiy - 44, 26, 16);
+        ctx.fillRect(zeix - 8, zeiy - 40, 16, 4);
+      }
+
+      // Hair (Black styled hair)
+      ctx.fillStyle = '#111827';
+      ctx.beginPath();
+      ctx.arc(zeix, zeiy - 50, 44, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // Lips / Mewing Jaw Expression
+      if (gameState.isMewingMode) {
+        ctx.fillStyle = '#9a3412';
+        ctx.fillRect(zeix - 12, zeiy - 5, 24, 4); // Shushing/Mewing line
+      } else {
+        ctx.fillStyle = '#bc6c25';
+        ctx.beginPath();
+        ctx.ellipse(zeix, zeiy - 3, 14, 6, 0, 0, Math.PI);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawCapybaraFriend() {
+      if (!gameState.hasCapybara) return;
+      ctx.save();
+      ctx.font = '36px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🦫', width * 0.18, height * 0.3 - 10);
+      ctx.restore();
+    }
+
+    function drawPedroRaccoon() {
+      if (!gameState.hasPedroRaccoon) return;
+      ctx.save();
+      ctx.translate(width * 0.82, height * 0.38 - 10);
+      gameState.pedroAngle += 0.08;
+      ctx.rotate(gameState.pedroAngle);
+      ctx.font = '38px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🦝', 0, 0);
+      ctx.restore();
+    }
+
+    function drawStraw() {
+      ctx.save();
+      const strawY = zeiy - 5;
+      
+      let strawColor = '#f87171';
+      if (gameState.strawLevel === 2) strawColor = '#a855f7';
+      if (gameState.hasZeidihStraw) strawColor = '#ffd700';
+
+      ctx.strokeStyle = strawColor;
+      ctx.lineWidth = gameState.hasZeidihStraw ? 12 : (gameState.strawLevel === 2 ? 10 : 7);
+      ctx.lineCap = 'round';
+
+      ctx.beginPath();
+      ctx.moveTo(zeix, strawY);
+      ctx.lineTo(zeix, strawY - 100);
+      ctx.stroke();
+
+      if (gameState.hasZeidihStraw) {
+        ctx.strokeStyle = '#a855f7';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(zeix, strawY - 100);
+        ctx.lineTo(zeix, 0);
+        ctx.stroke();
+      }
+
+      if (Math.random() < 0.35 && !gameState.isDiving) {
+        bubbles.push({
+          x: zeix + (Math.random() * 8 - 4),
+          y: strawY - 100,
+          r: Math.random() * 4 + 2,
+          vy: -Math.random() * 2 - 1
+        });
+      }
+
+      ctx.restore();
+    }
+
+    function drawFrogs() {
+      frogs.forEach((f) => {
+        ctx.save();
+
+        if (f.isGolden) {
+          ctx.fillStyle = '#ffd700';
+        } else if (f.isOnStraw) {
+          ctx.fillStyle = '#ef4444';
+        } else {
+          ctx.fillStyle = '#38a169';
+        }
+
+        ctx.beginPath();
+        ctx.ellipse(f.x, f.y, f.size, f.size * 0.75, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Frog eyes
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(f.x - f.size * 0.5, f.y - f.size * 0.5, 6, 0, Math.PI * 2);
+        ctx.arc(f.x + f.size * 0.5, f.y - f.size * 0.5, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(f.x - f.size * 0.5, f.y - f.size * 0.5, 2.5, 0, Math.PI * 2);
+        ctx.arc(f.x + f.size * 0.5, f.y - f.size * 0.5, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        f.croakTimer--;
+        if (f.croakTimer < 0) {
+          f.croakTimer = Math.random() * 300 + 100;
+          ripples.push({ x: f.x, y: f.y, r: 5, maxR: 35, alpha: 1 });
+          if (Math.random() < 0.3) audio.playRibbit();
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function drawBossFrog() {
+      if (!gameState.boss) return;
+      const b = gameState.boss;
+      ctx.save();
+
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.ellipse(b.x, b.y, b.size, b.size * 0.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Crown
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.moveTo(b.x - 20, b.y - b.size * 0.7);
+      ctx.lineTo(b.x - 10, b.y - b.size - 15);
+      ctx.lineTo(b.x, b.y - b.size * 0.7);
+      ctx.lineTo(b.x + 10, b.y - b.size - 15);
+      ctx.lineTo(b.x + 20, b.y - b.size * 0.7);
+      ctx.fill();
+
+      // Eyes
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(b.x - 20, b.y - 20, 10, 0, Math.PI * 2);
+      ctx.arc(b.x + 20, b.y - 20, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(b.x - 20, b.y - 20, 4, 0, Math.PI * 2);
+      ctx.arc(b.x + 20, b.y - 20, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawFloatingMemes() {
+      ctx.font = '24px sans-serif';
+      ctx.textAlign = 'center';
+      floatingMemes.forEach(m => {
+        m.x += m.vx;
+        m.y += m.vy;
+
+        if (m.x < 20 || m.x > width - 20) m.vx *= -1;
+        if (m.y < 20 || m.y > height / 2) m.vy *= -1;
+
+        ctx.fillText(m.icon, m.x, m.y);
+      });
+    }
+
+    function updateBubbles() {
+      ctx.fillStyle = '#74c69d88';
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        let b = bubbles[i];
+        b.y += b.vy;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (b.y < zeiy - 140) bubbles.splice(i, 1);
+      }
+    }
+
+    function drawRipples() {
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        let r = ripples[i];
+        r.r += 0.9;
+        r.alpha -= 0.02;
+
+        ctx.strokeStyle = `rgba(116, 198, 157, ${Math.max(0, r.alpha)})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+
+        if (r.alpha <= 0) ripples.splice(i, 1);
+      }
+    }
+
+    function drawParticles() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.y += p.vy;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (p.y < -10) particles.splice(i, 1);
+      }
+    }
+
+    function renderSubwaySurfers() {
+      const overlay = document.getElementById('subway-overlay');
+      if (!subwayCanvas || !subwayCtx || !overlay || overlay.classList.contains('hidden')) return;
+      
+      const w = subwayCanvas.width;
+      const h = subwayCanvas.height;
+      if (w <= 0 || h <= 0) return;
+
+      subwayCtx.fillStyle = '#020617';
+      subwayCtx.fillRect(0, 0, w, h);
+
+      const laneW = w / 3;
+
+      // Track lanes
+      subwayCtx.strokeStyle = '#334155';
+      subwayCtx.lineWidth = 1.5;
+      subwayCtx.beginPath();
+      subwayCtx.moveTo(laneW, 0); subwayCtx.lineTo(laneW, h);
+      subwayCtx.moveTo(laneW * 2, 0); subwayCtx.lineTo(laneW * 2, h);
+      subwayCtx.stroke();
+
+      // Spawn Obstacles & Coins
+      if (Math.random() < 0.035) {
+        subwayState.obstacles.push({
+          lane: Math.floor(Math.random() * 3),
+          y: -20,
+          type: Math.random() < 0.5 ? 'train' : 'barrier'
+        });
+      }
+      if (Math.random() < 0.05) {
+        subwayState.coinsList.push({
+          lane: Math.floor(Math.random() * 3),
+          y: -15
+        });
+      }
+
+      // Handle Jump Logic
+      if (subwayState.isJumping) {
+        subwayState.jumpHeight += subwayState.jumpVel;
+        subwayState.jumpVel -= 0.65;
+        if (subwayState.jumpHeight <= 0) {
+          subwayState.jumpHeight = 0;
+          subwayState.isJumping = false;
+        }
+      }
+
+      const playerY = h - 35 - subwayState.jumpHeight;
+      const playerX = laneW * subwayState.lane + laneW / 2;
+
+      // Update & Draw Coins
+      subwayCtx.fillStyle = '#f59e0b';
+      for (let i = subwayState.coinsList.length - 1; i >= 0; i--) {
+        let c = subwayState.coinsList[i];
+        c.y += subwayState.speed;
+        const cx = laneW * c.lane + laneW / 2;
+
+        subwayCtx.beginPath();
+        subwayCtx.arc(cx, c.y, 5, 0, Math.PI * 2);
+        subwayCtx.fill();
+
+        // Collect
+        if (Math.hypot(cx - playerX, c.y - playerY) < 16) {
+          subwayState.score += 50;
+          gameState.clout += 25;
+          subwayState.coinsList.splice(i, 1);
+          audio.playCoin();
+        } else if (c.y > h + 10) {
+          subwayState.coinsList.splice(i, 1);
+        }
+      }
+
+      // Update & Draw Obstacles
+      for (let i = subwayState.obstacles.length - 1; i >= 0; i--) {
+        let ob = subwayState.obstacles[i];
+        ob.y += subwayState.speed;
+        const obX = laneW * ob.lane + laneW / 2;
+
+        subwayCtx.fillStyle = ob.type === 'train' ? '#ef4444' : '#eab308';
+        subwayCtx.fillRect(obX - laneW * 0.35, ob.y - 10, laneW * 0.7, 20);
+
+        // Collision Check
+        if (ob.lane === subwayState.lane && Math.abs(ob.y - playerY) < 16 && subwayState.jumpHeight < 10) {
+          subwayState.score = Math.max(0, subwayState.score - 20);
+          subwayState.obstacles.splice(i, 1);
+          spawnFloatingText('💥 CRASH!', playerX, playerY, '#ef4444');
+        } else if (ob.y > h + 20) {
+          subwayState.obstacles.splice(i, 1);
+          subwayState.score += 10;
+        }
+      }
+
+      // Draw Player Runner
+      subwayCtx.fillStyle = '#3b82f6';
+      subwayCtx.beginPath();
+      subwayCtx.arc(playerX, playerY, 9, 0, Math.PI * 2);
+      subwayCtx.fill();
+
+      // Cap
+      subwayCtx.fillStyle = '#ec4899';
+      subwayCtx.fillRect(playerX - 6, playerY - 13, 12, 4);
+
+      // Score UI
+      const scoreEl = document.getElementById('subway-score');
+      if (scoreEl) scoreEl.innerText = `${subwayState.score} pts`;
+    }
+
+    function drawMemeCaptions() {
+      if (!gameState.topCaption && !gameState.bottomCaption) return;
+
+      ctx.save();
+      ctx.font = '900 18px "Outfit", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 4;
+
+      if (gameState.topCaption) {
+        ctx.strokeText(gameState.topCaption.toUpperCase(), width / 2, 35);
+        ctx.fillText(gameState.topCaption.toUpperCase(), width / 2, 35);
+      }
+
+      if (gameState.bottomCaption) {
+        ctx.strokeText(gameState.bottomCaption.toUpperCase(), width / 2, height - 25);
+        ctx.fillText(gameState.bottomCaption.toUpperCase(), width / 2, height - 25);
+      }
+
+      ctx.restore();
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      // Check Zei click secret
+      const distZei = Math.hypot(mx - zeix, my - zeiy);
+      if (distZei < 45) {
+        triggerZeidihEasterEgg();
+        return;
+      }
+
+      // Check Boss Frog Click
+      if (gameState.boss) {
+        const distBoss = Math.hypot(mx - gameState.boss.x, my - gameState.boss.y);
+        if (distBoss < gameState.boss.size + 15) {
+          gameState.boss.hp -= 5;
+          audio.playCoin();
+          spawnFloatingText('-5 HP!', gameState.boss.x, gameState.boss.y, '#ef4444');
+          updateBossHud();
+
+          if (gameState.boss.hp <= 0) {
+            gameState.boss = null;
+            document.getElementById('boss-hud').classList.add('hidden');
+            gameState.clout += 50000;
+            spawnFloatingText('+50,000 BOSS SLAIN!', zeix, zeiy - 100, '#ffd700');
+            showToast('👑 BOSS FROG DEFEATED! +50k CLOUT!');
+          }
+          return;
+        }
+      }
+
+      // Check Floating Memes Click
+      floatingMemes.forEach(m => {
+        const dist = Math.hypot(mx - m.x, my - m.y);
+        if (dist < 28) {
+          audio.playCoin();
+          gameState.clout += 500;
+          gameState.stats.memesTapped++;
+          spawnFloatingText(`+500 ${m.icon} MEME!`, m.x, m.y, '#ec4899');
+          m.x = Math.random() * width;
+          m.y = Math.random() * (height / 2);
+          addTwitchChatMessage(`Chat user tapped ${m.icon}! W RIZZ!`);
+        }
+      });
+
+      // Check Frogs Click
+      frogs.forEach((f) => {
+        const dist = Math.hypot(mx - f.x, my - f.y);
+        if (dist < f.size + 15) {
+          audio.playRibbit();
+          ripples.push({ x: f.x, y: f.y, r: 10, maxR: 40, alpha: 1 });
+
+          gameState.stats.frogsShooed++;
+
+          if (f.isGolden) {
+            gameState.clout += 5000;
+            spawnFloatingText('+5000 GOLDEN CLOUT!', f.x, f.y, '#ffd700');
+            audio.playCoin();
+          } else {
+            gameState.clout += 50;
+            spawnFloatingText('+50 CLOUT', f.x, f.y, '#52b788');
+          }
+
+          addCombo();
+
+          f.isOnStraw = false;
+          f.x = Math.random() * (width - 120) + 60;
+          f.y = Math.random() * (height - 160) + 80;
+        }
+      });
+    });
+
+    function triggerMewing() {
+      gameState.isMewingMode = !gameState.isMewingMode;
+      if (gameState.isMewingMode) {
+        gameState.mewingStreak++;
+        gameState.stats.mewingStreakMax = Math.max(gameState.stats.mewingStreakMax, gameState.mewingStreak);
+        audio.playMewingSound();
+        showToast('🗿 MEWING MODE ACTIVATED! 3x CLOUT!');
+        if (gameState.mewingStreak >= 10) unlockBadge(1);
+      } else {
+        showToast('🤫 Mewing paused.');
+      }
+      const countEl = document.getElementById('mewing-count');
+      if (countEl) countEl.innerText = `${gameState.mewingStreak}🤫`;
+    }
+
+    function triggerZeidihEasterEgg() {
+      audio.playZeidihBeam();
+      gameState.weather = 'zeidih';
+      gameState.clout += 1000000;
+      gameState.views += 1000000000000;
+      gameState.hasZeidihStraw = true;
+
+      const banner = document.getElementById('zeidih-banner');
+      banner.classList.remove('opacity-0', 'scale-50');
+      banner.classList.add('opacity-100', 'scale-100');
+
+      showToast('⚡ ZEIDIH.COM DOMAIN UNLOCKED! +1M CLOUT!');
+
+      setTimeout(() => {
+        banner.classList.remove('opacity-100', 'scale-100');
+        banner.classList.add('opacity-0', 'scale-50');
+      }, 3500);
+    }
+
+    function handleCodeInput(e) {
+      if (e.key === 'Enter') submitSecretCode();
+    }
+
+    function submitSecretCode() {
+      const input = document.getElementById('secret-code-input');
+      const val = input.value.trim().toLowerCase();
+      input.value = '';
+
+      if (val === 'mewing' || val === 'chad') {
+        triggerMewing();
+      } else if (val === 'fanumtax' || val === 'fanum') {
+        gameState.stats.fanumTaxCount++;
+        gameState.clout += 25000;
+        audio.playCoin();
+        unlockBadge(2);
+        showToast('🍕 FANUM TAX RAID! +25,000 CLOUT!');
+      } else if (val === 'pedroraccoon' || val === 'pedro') {
+        gameState.hasPedroRaccoon = true;
+        audio.playZeidihBeam();
+        showToast('🦝 PEDRO SPINNING RACCOON UNLOCKED!');
+      } else if (val === 'grimace') {
+        setWeather('grimace');
+      } else if (val === 'rizz' || val === 'skibidi') {
+        gameState.clout += 50000;
+        audio.playCoin();
+        showToast('🧠 UNLIMITED RIZZ: +50k CLOUT!');
+      } else {
+        showToast('❌ Invalid Secret Code!');
+      }
+    }
+
+    function toggleSubwaySurfers() {
+      const el = document.getElementById('subway-overlay');
+      el.classList.toggle('hidden');
+      showToast('🎮 Subway Surfers Split Screen Toggled!');
+    }
+
+    function toggleTwitchChat() {
+      const el = document.getElementById('twitch-chat-overlay');
+      el.classList.toggle('hidden');
+      showToast('💬 Live Brainrot Twitch Chat Toggled!');
+    }
+
+    function addTwitchChatMessage(msg) {
+      const container = document.getElementById('twitch-chat-messages');
+      const line = document.createElement('div');
+      line.className = 'text-slate-300 truncate';
+      line.innerHTML = `<span class="text-purple-400 font-bold">User${Math.floor(Math.random()*900+100)}:</span> ${msg}`;
+      container.appendChild(line);
+
+      if (container.children.length > 8) container.children[0].remove();
+    }
+
+    setInterval(() => {
+      const brainrotMsgs = [
+        "W RIZZ ZEI 🔥", "SKIBIDI POND!", "IS BRO MEWING?? 🗿", "FANUM TAXED!",
+        "L FROG 🐸", "SIGMA STEALTH 🥷", "GIGACHAD ZEI!", "THAT STRAW IS CRAZY 🥤"
+      ];
+      if (!document.getElementById('twitch-chat-overlay').classList.contains('hidden')) {
+        addTwitchChatMessage(brainrotMsgs[Math.floor(Math.random() * brainrotMsgs.length)]);
+      }
+    }, 2000);
+
+    function addCombo() {
+      gameState.combo++;
+      const badge = document.getElementById('combo-badge');
+      const count = document.getElementById('combo-count');
+      badge.classList.remove('hidden');
+      count.innerText = gameState.combo + 'x';
+
+      if (gameState.comboTimer) clearTimeout(gameState.comboTimer);
+      gameState.comboTimer = setTimeout(() => {
+        gameState.combo = 0;
+        badge.classList.add('hidden');
+      }, 2500);
+    }
+
+    const btnDive = document.getElementById('btn-dive');
+    btnDive.addEventListener('pointerdown', () => { gameState.isDiving = true; });
+    btnDive.addEventListener('pointerup', () => { gameState.isDiving = false; });
+    btnDive.addEventListener('pointerleave', () => { gameState.isDiving = false; });
+
+    function triggerMassRibbit() {
+      audio.playRibbit();
+      frogs.forEach(f => {
+        ripples.push({ x: f.x, y: f.y, r: 5, maxR: 45, alpha: 1 });
+      });
+      showToast('🐸 ALL FROGS CROAKED IN HARMONY!');
+    }
+
+    function buyUpgrade(type) {
+      if (type === 'straw' && gameState.clout >= 100 && gameState.strawLevel < 2) {
+        gameState.clout -= 100;
+        gameState.strawLevel = 2;
+        audio.playCoin();
+        showToast('Upgraded to Boba Quantum Straw! 🥤');
+        document.getElementById('btn-upgrade-straw').disabled = true;
+      } else if (type === 'shades' && gameState.clout >= 500 && !gameState.hasShades) {
+        gameState.clout -= 500;
+        gameState.hasShades = true;
+        audio.playCoin();
+        showToast('Rizzler Shades Equipped! 🕶️');
+        document.getElementById('btn-upgrade-shades').disabled = true;
+      } else if (type === 'plunger' && gameState.clout >= 1500 && !gameState.hasPlunger) {
+        gameState.clout -= 1500;
+        gameState.hasPlunger = true;
+        audio.playPlunger();
+        unlockBadge(3);
+        showToast('Skibidi Plunger Cannon Activated! 🪠');
+        document.getElementById('btn-upgrade-plunger').disabled = true;
+      } else if (type === 'jawline' && gameState.clout >= 5000 && !gameState.hasJawline) {
+        gameState.clout -= 5000;
+        gameState.hasJawline = true;
+        audio.playCoin();
+        showToast('Chad Jawline Trainer Equipped! 🗿');
+        document.getElementById('btn-upgrade-jawline').disabled = true;
+      } else if (type === 'capybara' && gameState.clout >= 12000 && !gameState.hasCapybara) {
+        gameState.clout -= 12000;
+        gameState.hasCapybara = true;
+        audio.playCoin();
+        showToast('Golden Capybara Friend Spawned! 🦫');
+        document.getElementById('btn-upgrade-capybara').disabled = true;
+      } else if (type === 'zeidih' && gameState.clout >= 50000 && !gameState.hasZeidihStraw) {
+        gameState.clout -= 50000;
+        gameState.hasZeidihStraw = true;
+        audio.playZeidihBeam();
+        showToast('⚡ Zeidih Quantum Straw Unlocked!');
+        document.getElementById('btn-upgrade-zeidih').disabled = true;
+      }
+    }
+
+    function setWeather(mode) {
+      gameState.weather = mode;
+      showToast(`Environment set to: ${mode.toUpperCase()}`);
+    }
+
+    function updateBossHud() {
+      if (!gameState.boss) return;
+      document.getElementById('boss-hp-text').innerText = `${gameState.boss.hp}/${gameState.boss.maxHp}`;
+      document.getElementById('boss-hp-bar').style.width = `${(gameState.boss.hp / gameState.boss.maxHp) * 100}%`;
+    }
+
+    function updateUI() {
+      document.getElementById('header-views').innerText = formatExponent(gameState.views);
+      document.getElementById('shop-clout-display').innerText = Math.floor(gameState.clout) + ' Clout';
+      document.getElementById('clout-rate').innerText = '+' + Math.floor(gameState.cloutRate * (gameState.hasShades ? 2 : 1) * (gameState.hasJawline ? 5 : 1) * (gameState.weather === 'zeidih' ? 100 : 1)) + ' Clout/sec';
+
+      const oxBar = document.getElementById('oxygen-bar');
+      const oxText = document.getElementById('oxygen-text');
+      oxBar.style.width = gameState.oxygen + '%';
+      oxText.innerText = Math.floor(gameState.oxygen) + '%';
+
+      if (gameState.oxygen < 30) {
+        oxBar.className = 'h-full bg-red-500 rounded-full transition-all duration-200 animate-pulse';
+      } else {
+        oxBar.className = 'h-full bg-gradient-to-r from-cyan-500 via-emerald-400 to-amber-300 rounded-full transition-all duration-200';
+      }
+
+      // Stats
+      document.getElementById('stat-frogs').innerText = gameState.stats.frogsShooed;
+      document.getElementById('stat-flies').innerText = gameState.stats.memesTapped;
+      document.getElementById('stat-tax').innerText = gameState.stats.fanumTaxCount;
+      document.getElementById('stat-mewing').innerText = gameState.stats.mewingStreakMax;
+    }
+
+    function unlockBadge(id) {
+      const el = document.getElementById(`badge-${id}`);
+      if (el) el.classList.remove('opacity-50');
+    }
+
+    function formatExponent(num) {
+      if (num > 1e12) return num.toExponential(2);
+      return Math.floor(num).toLocaleString();
+    }
+
+    function spawnFloatingText(text, x, y, color) {
+      const el = document.createElement('div');
+      el.className = 'absolute font-pixel text-xs animate-float-text z-30 pointer-events-none drop-shadow-md';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.color = color;
+      el.innerText = text;
+      document.getElementById('floating-text-container').appendChild(el);
+
+      setTimeout(() => el.remove(), 1200);
+    }
+
+    function switchTab(tabName) {
+      ['upgrades', 'frogs', 'weather', 'achievements', 'meme'].forEach(t => {
+        document.getElementById('content-' + t).classList.add('hidden');
+        const btn = document.getElementById('tab-' + t);
+        btn.className = 'flex-1 py-2 px-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1 shrink-0';
+      });
+
+      document.getElementById('content-' + tabName).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-' + tabName);
+      activeBtn.className = 'flex-1 py-2 px-2 rounded-xl text-xs font-bold transition bg-emerald-600 text-white flex items-center justify-center gap-1 shrink-0';
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      if (toastMsg) toastMsg.innerText = msg;
+      if (toast) {
+        toast.classList.remove('opacity-0');
+        setTimeout(() => toast.classList.add('opacity-0'), 2500);
+      }
+    }
+
+    document.getElementById('sound-toggle-btn').addEventListener('click', () => {
+      audio.soundEnabled = !audio.soundEnabled;
+      document.getElementById('sound-icon').className = audio.soundEnabled ? 'fa-solid fa-volume-high text-emerald-400' : 'fa-solid fa-volume-xmark text-slate-500';
+      showToast(audio.soundEnabled ? 'Sound Effects Enabled 🔊' : 'Sound Effects Muted 🔇');
+    });
+
+    document.getElementById('music-toggle-btn').addEventListener('click', () => {
+      const active = audio.toggleMusic();
+      document.getElementById('music-icon').className = active ? 'fa-solid fa-music text-pink-400 animate-bounce' : 'fa-solid fa-music text-slate-500';
+      showToast(active ? 'Lo-Fi Pond Synth Playing 🎵' : 'Lo-Fi Pond Synth Paused 🔇');
+    });
+
+    document.getElementById('input-top-text').addEventListener('input', (e) => {
+      gameState.topCaption = e.target.value;
+    });
+
+    document.getElementById('input-bottom-text').addEventListener('input', (e) => {
+      gameState.bottomCaption = e.target.value;
+    });
+
+    function captureCanvasMeme() {
+      const link = document.createElement('a');
+      link.download = 'zeidih-brainrot-meme.png';
+      link.href = canvas.toDataURL();
+      link.click();
+      showToast('📸 Brain Rot Meme Snapshot Saved!');
+    }
+
+    window.onload = function() {
+      initPond();
+      requestAnimationFrame(renderLoop);
+    };
+  </script>
+</body>
+</html>
